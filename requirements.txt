@@ -1,0 +1,9 @@
+argparse
+pyyaml
+beautifulsoup4
+requests
+tqdm
+pycryptodomex
+undetected-chromedriver
+setuptools
+quickjs

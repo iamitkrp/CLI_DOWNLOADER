@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+myvenv/
+.env/
+.venv/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs and media files
+logs/
+*.log*
+*.mp4
+
+# User-specific data files
+Clients/*.json
+dev_dump/
+
+# Configuration files except examples
+config_*.yaml
+!config_example.yaml
+
+# Cache
+.cache/
