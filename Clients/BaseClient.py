@@ -7,11 +7,8 @@ from bs4 import BeautifulSoup as BS
 from copy import deepcopy
 from urllib.parse import parse_qs, urlparse
 
-# modules for encryption
 import base64
 from Cryptodome.Cipher import AES
-
-# modules to bypass DDoS protection & Complex Javascript execution
 import undetected_chromedriver as uc
 
 from Utils.commons import colprint, exec_os_cmd, pretty_time, retry, threaded, ExitException
@@ -85,18 +82,14 @@ class BaseClient():
             else:       # display error message onto console and log
                 self.logger.error(message)
 
-        # print(f'{self.req_session}: {url}')
         header = deepcopy(self.header)
         if referer: header.update({'referer': referer})
         if return_type.lower() == 'json': header.update({'Accept': 'application/json'})
         if extra_headers: header.update(extra_headers)
-        # self.logger.debug(f'Cookies before request: {self.req_session.cookies.get_dict()}')
         if request_type == 'get':
             response = self.req_session.get(url, timeout=self.request_timeout, headers=header, cookies=cookies)
         elif request_type == 'post':
             response = self.req_session.post(url, timeout=self.request_timeout, headers=header, cookies=cookies, data=post_data, files=upload_data)
-        # self.logger.debug(f'Cookies after request: {self.req_session.cookies.get_dict()}')
-        # print(response)
 
         if response.status_code == 200:
             if return_type.lower() == 'text':
@@ -181,7 +174,6 @@ class BaseClient():
         with open(self.cookies_file, 'w') as f:
             json.dump(cookies, f)
 
-    # step-4.1 -- used in GogoAnime, MyAsianTV
     def _get_stream_link(self, link, stream_links_element):
         '''
         return stream link for extracting download links
@@ -198,7 +190,6 @@ class BaseClient():
                 stream_link = stream['data-video']
                 return pad_https(stream_link)
 
-    # step-4.2.2.1 -- used in GogoAnime, MyAsianTV
     def _parse_m3u8_links(self, master_m3u8_link, referer):
         '''
         parse master m3u8 data and return dict of resolutions and m3u8 links
@@ -257,7 +248,6 @@ class BaseClient():
 
         return m3u8_links
 
-    # step-4.2.2.2 -- used in GogoAnime, MyAsianTV
     def _get_video_metadata(self, link, link_type='mp4', referer=None):
         '''
         return duration & size of the video using ffprobe command
@@ -338,7 +328,6 @@ class BaseClient():
 
         return dl_size
 
-    # step-4.2.1 -- used in GogoAnime, MyAsianTV
     def _get_download_sources(self, **gdl_config):
         '''
         extract download link sources
@@ -430,7 +419,6 @@ class BaseClient():
 
         return download_links
 
-    # step-4.2.2 -- used in GogoAnime, MyAsianTV, VidSrc
     def _get_download_links(self, download_links, *config_data):
         '''
         retrieve download links from stream link and return available resolution links
@@ -526,12 +514,11 @@ class BaseClient():
         info += f' (duration: {duration})'    # get duration from any resolution dict
 
         for _res, _vals in details.items():
-            info += f' | {_res}P ({_vals["resolution_size"]})' #| URL: {_vals["downloadLink"]}
+            info += f' | {_res}P ({_vals["resolution_size"]})'
             if 'filesize_mb' in _vals: info += f' [~{_vals["filesize_mb"]} MB]'
 
         self._colprint('results', info)
 
-    # step-6
     def fetch_m3u8_links(self, target_links, resolution, episode_prefix):
         '''
         return dict containing m3u8 links based on resolution. (this is a default method. override if required)
@@ -606,8 +593,6 @@ class BaseClient():
         return s[:-ord(s[len(s)-1:])]
 
     def _aes_encrypt(self, word: str, key: bytes, iv: bytes):
-        # [deprecated] using openssl
-        # cmd = f'echo {word} | "{openssl_executable}" enc -aes256 -K {key} -iv {iv} -a -e'
         # Encrypt the message and add PKCS#7 padding
         padded_message = self._pad(word)
         # set up the AES cipher in CBC mode
@@ -619,9 +604,6 @@ class BaseClient():
         return base64_encrypted_message
 
     def _aes_decrypt(self, word: str, key: bytes, iv: bytes):
-        # [deprecated] using openssl
-        # Decode the base64-encoded message
-        # cmd = f'echo {word} | python -m base64 -d | "{openssl_executable}" enc -aes256 -K {key} -iv {iv} -d'
         encrypted_msg = base64.b64decode(word)
         # set up the AES cipher in CBC mode
         cipher = AES.new(key, AES.MODE_CBC, iv)
@@ -676,7 +658,6 @@ class BaseClient():
         if target_resolution in available_resolutions:
             return target_resolution
 
-        # return if there is only one resolution available. Also helpful if resolution = original
         if len(available_resolutions) == 1:
             return next(iter(available_resolutions))
 
@@ -732,7 +713,6 @@ class BaseClient():
 
         return uc.Chrome(headless=True)
 
-    # step-7
     def cleanup(self):
         '''
         Perform any clean-up activities as required.
